@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username   = "root";      // XAMPP/WAMP/MAMP पर default user
-$password   = "";          // default password empty होता है
-$dbname     = "ajxcrud";   // अपने database का नाम डाल
+$username   = "root";      
+$password   = "";          
+$dbname     = "ajxcrud";   
 
 // DB connect
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -24,15 +24,24 @@ $password  = $_POST['password'] ?? '';
 // Password hash करना अच्छा है
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-// Insert query
-$sql = "INSERT INTO testing (firstname, lastname, email, age, phone, address, password) 
-        VALUES ('$firstname', '$lastname', '$email', '$age', '$phone', '$address', '$hashed_password')";
+// ✅ पहले check करेंगे कि email पहले से मौजूद तो नहीं
+$check = "SELECT * FROM testing WHERE email = '$email'";
+$result = $conn->query($check);
 
-if ($conn->query($sql) === TRUE) {
-    echo "Record inserted successfully.";
+if ($result->num_rows > 0) {
+    echo "⚠️ User already exists with this email!";
 } else {
-    echo "Error: " . $conn->error;
+    // Insert query
+    $sql = "INSERT INTO testing (firstname, lastname, email, age, phone, address, password) 
+            VALUES ('$firstname', '$lastname', '$email', '$age', '$phone', '$address', '$hashed_password')";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "✅ Record inserted successfully.";
+    } else {
+        echo "Error: " . $conn->error;
+    }
 }
 
 $conn->close();
 ?>
+
